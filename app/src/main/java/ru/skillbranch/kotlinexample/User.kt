@@ -34,9 +34,10 @@ class User private constructor(
         set(value) {
             _login = value.toLowerCase()
         }
-    private val salt: String by lazy {
-        ByteArray(16).also { SecureRandom().nextBytes(it) }.toString()
-    }
+    private var _salt: String? = null
+    private val salt: String
+        get() = _salt ?: ByteArray(16).also { SecureRandom().nextBytes(it) }.toString()
+            .also { _salt = it }
     private lateinit var passwordHash: String
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -60,6 +61,24 @@ class User private constructor(
             throw IllegalArgumentException("Enter a valid phone number starting with a + and containing 11 digits")
         }
         requestAccessCode()
+    }
+
+    constructor(
+        firstName: String,
+        lastName: String?,
+        email: String?,
+        phone: String?,
+        salt: String,
+        passwordHash: String
+    ) : this(
+        firstName = firstName,
+        lastName = lastName,
+        email = email,
+        rawPhone = phone,
+        meta = mapOf("src" to "csv")
+    ) {
+        _salt = salt
+        this.passwordHash = passwordHash
     }
 
     init {
@@ -139,6 +158,20 @@ class User private constructor(
                     User(firstName, lastName, email = email, password = password)
                 else -> throw  IllegalArgumentException("Email or phone must be not null or blank")
             }
+        }
+
+        fun importUser(
+            fullName: String,
+            email: String?,
+            phone: String?,
+            salt: String,
+            passwordHash: String
+        ): User {
+            val (firstName, lastName) = fullName.fullNameToPair()
+            if (email != null && phone != null) {
+                throw IllegalArgumentException("Only email or only phone must be present")
+            }
+            return User(firstName, lastName, email, phone, salt, passwordHash)
         }
 
         private fun String.fullNameToPair(): Pair<String, String?> {

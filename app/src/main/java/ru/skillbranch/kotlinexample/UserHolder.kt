@@ -33,8 +33,8 @@ object UserHolder {
         }
     }
 
-    fun requestAccessCode(login: String): Unit {
-
+    fun requestAccessCode(login: String) {
+        map[login.trimPhone()]?.requestAccessCode()
     }
 
     fun importUsers(list: List<String>): List<User> {

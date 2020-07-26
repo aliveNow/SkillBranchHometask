@@ -59,14 +59,10 @@ class User private constructor(
         if (phone?.isValidPhone() != true) {
             throw IllegalArgumentException("Enter a valid phone number starting with a + and containing 11 digits")
         }
-        val code = generateAccessCode()
-        passwordHash = encrypt(code)
-        accessCode = code
-        sendAccessCodeToUser(phone!!, code)
+        requestAccessCode()
     }
 
     init {
-
         check(!firstName.isBlank()) { "FirstName must be not blank" }
         check(email.isNullOrBlank() || rawPhone.isNullOrBlank()) { "Email or phone must be not blank" }
 
@@ -93,6 +89,13 @@ class User private constructor(
         } else {
             throw IllegalAccessException("The entered password does not match the current password")
         }
+    }
+
+    fun requestAccessCode() {
+        val code = generateAccessCode()
+        passwordHash = encrypt(code)
+        accessCode = code
+        sendAccessCodeToUser(phone!!, code)
     }
 
     private fun encrypt(password: String): String = salt.plus(password).md5()

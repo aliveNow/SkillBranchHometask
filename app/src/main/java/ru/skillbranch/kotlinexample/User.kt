@@ -1,6 +1,7 @@
 package ru.skillbranch.kotlinexample
 
 import androidx.annotation.VisibleForTesting
+import java.lang.IllegalArgumentException
 import java.lang.StringBuilder
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -13,7 +14,7 @@ class User private constructor(
     rawPhone: String? = null,
     meta: Map<String, Any>? = null
 ) {
-
+    
     val userInfo: String
     private val fullName: String
         get() = listOfNotNull(firstName, lastName)
@@ -63,16 +64,33 @@ class User private constructor(
     }
 
     init {
+
+        check(!firstName.isBlank()) { "FirstName must be not blank" }
+        check(email.isNullOrBlank() || rawPhone.isNullOrBlank()) { "Email or phone must be not blank" }
+
+        phone = rawPhone
+        login = email ?: phone!!
+
         userInfo = """
-      firstName: $firstName
-      lastName: $lastName
-      login: $login
-      fullName: $fullName
-      initials: $initials
-      email: $email
-      phone: $phone
-      meta: $meta
-    """.trimIndent()
+            firstName: $firstName
+            lastName: $lastName
+            login: $login
+            fullName: $fullName
+            initials: $initials
+            email: $email
+            phone: $phone
+            meta: $meta
+        """.trimIndent()
+    }
+
+    fun checkPassword(pass: String) = encrypt(pass) == passwordHash
+
+    fun changePassword(oldPass: String, newPass: String) {
+        if (checkPassword(oldPass)) {
+            passwordHash = encrypt(newPass)
+        } else {
+            throw IllegalAccessException("The entered password does not match the current password")
+        }
     }
 
     private fun encrypt(password: String): String = salt.plus(password).md5()
@@ -97,6 +115,36 @@ class User private constructor(
         val digest = md.digest(toByteArray()) //16 byte
         val hexString = BigInteger(1, digest).toString(16)
         return hexString.padStart(32, '0')
+    }
+
+    companion object Factory {
+
+        fun makeUser(
+            fullName: String,
+            email: String? = null,
+            password: String? = null,
+            phone: String? = null
+        ): User {
+            val (firstName, lastName) = fullName.fullNameToPair()
+            return when {
+                !phone.isNullOrBlank() -> User(firstName, lastName, rawPhone = phone)
+                !email.isNullOrBlank() && !password.isNullOrBlank() ->
+                    User(firstName, lastName, email = email, password = password)
+                else -> throw  IllegalArgumentException("Email or phone must be not null or blank")
+            }
+        }
+
+        private fun String.fullNameToPair(): Pair<String, String?> {
+            return split(" ")
+                .filter { it.isNotBlank() }
+                .run {
+                    when (size) {
+                        1 -> first() to null
+                        2 -> first() to last()
+                        else -> throw IllegalAccessException("FullName must contain only first name and last name, current split result ${this@fullNameToPair}")
+                    }
+                }
+        }
     }
 
 }

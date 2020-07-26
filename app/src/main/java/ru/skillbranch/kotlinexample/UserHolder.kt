@@ -24,7 +24,7 @@ object UserHolder {
     }
 
     fun loginUser(login: String, password: String): String? {
-        return map[login.trim()]?.let {
+        return (map[login.trim()] ?: map[login.trimPhone()])?.let {
             if (it.checkPassword(password)) {
                 it.userInfo
             } else {

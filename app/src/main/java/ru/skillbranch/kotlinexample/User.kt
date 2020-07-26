@@ -26,7 +26,7 @@ class User private constructor(
             .joinToString(" ")
     private var phone: String? = null
         set(value) {
-            field = value?.replace("[^+\\d]".toRegex(), "")
+            field = value?.trimPhone()
         }
     private var _login: String? = null
     var login: String
@@ -152,3 +152,5 @@ class User private constructor(
     }
 
 }
+
+fun String.trimPhone(): String = replace("[^+\\d]".toRegex(), "")

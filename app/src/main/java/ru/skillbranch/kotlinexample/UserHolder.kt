@@ -5,12 +5,12 @@ object UserHolder {
 
     fun registerUser(fullName: String, email: String, password: String): User {
         return User.makeUser(fullName, email = email, password = password)
-            .also { addUser(it) }
+            .also { addUser(it, email = email) }
     }
 
     fun registerUserByPhone(fullName: String, rawPhone: String): User {
         return User.makeUser(fullName, phone = rawPhone)
-            .also { addUser(it) }
+            .also { addUser(it, phone = rawPhone) }
     }
 
     fun loginUser(login: String, password: String): String? {
@@ -41,7 +41,7 @@ object UserHolder {
             val phone = values[4].trim().takeIf { it.isNotBlank() }
             users.add(
                 User.importUser(fullName, email, phone, salt, passwordHash)
-                    .also { addUser(it) }
+                    .also { addUser(it, email = email, phone = phone) }
             )
         }
         return users
@@ -55,8 +55,8 @@ object UserHolder {
         if (map.containsKey(user.login)) {
             throw IllegalArgumentException(
                 when {
-                    email != null -> "A user with this email already exists: $email"
-                    phone != null -> "A user with this phone already exists: $phone"
+                    email != null -> "A user with this email already exists"
+                    phone != null -> "A user with this phone already exists"
                     else -> "A user with this login already exists: ${user.login}"
                 }
             )

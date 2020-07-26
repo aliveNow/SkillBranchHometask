@@ -56,6 +56,9 @@ class User private constructor(
         lastName: String?,
         rawPhone: String
     ) : this(firstName, lastName, rawPhone = rawPhone, meta = mapOf("auth" to "sms")) {
+        if (phone?.isValidPhone() != true) {
+            throw IllegalArgumentException("Enter a valid phone number starting with a + and containing 11 digits")
+        }
         val code = generateAccessCode()
         passwordHash = encrypt(code)
         accessCode = code
@@ -115,6 +118,8 @@ class User private constructor(
         val hexString = BigInteger(1, digest).toString(16)
         return hexString.padStart(32, '0')
     }
+
+    private fun String.isValidPhone(): Boolean = first() == "+".first() && length == 12
 
     companion object Factory {
 

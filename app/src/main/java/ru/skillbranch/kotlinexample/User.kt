@@ -22,9 +22,8 @@ class User private constructor(
             .capitalize()
     private val initials: String
         get() = listOfNotNull(firstName, lastName)
-            .map { it.first() }
-            .joinToString { " " }
-            .toUpperCase()
+            .map { it.first().toUpperCase() }
+            .joinToString(" ")
     private var phone: String? = null
         set(value) {
             field = value?.replace("[^+\\d]".toRegex(), "")
@@ -141,7 +140,7 @@ class User private constructor(
                     when (size) {
                         1 -> first() to null
                         2 -> first() to last()
-                        else -> throw IllegalAccessException("FullName must contain only first name and last name, current split result ${this@fullNameToPair}")
+                        else -> throw IllegalArgumentException("FullName must contain only first name and last name, current split result ${this@fullNameToPair}")
                     }
                 }
         }

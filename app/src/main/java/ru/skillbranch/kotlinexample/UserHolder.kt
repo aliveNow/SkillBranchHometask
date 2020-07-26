@@ -5,7 +5,12 @@ object UserHolder {
 
     fun registerUser(fullName: String, email: String, password: String): User {
         return User.makeUser(fullName, email = email, password = password)
-            .also { map[it.login] = it }
+            .also {
+                if (map.containsKey(it.login)) {
+                    throw IllegalArgumentException("A user with this email already exists")
+                }
+                map[it.login] = it
+            }
     }
 
     fun registerUserByPhone(fullName: String, rawPhone: String): User {
@@ -26,12 +31,12 @@ object UserHolder {
 
     }
 
-    fun clearHolder() {
-
-    }
-
     fun importUsers(list: List<String>): List<User> {
         TODO()
+    }
+
+    fun clearHolder() {
+        map.clear()
     }
 
 }

@@ -1,17 +1,16 @@
 package ru.skillbranch.skillarticles.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.layout_bottombar.view.*
-import kotlinx.android.synthetic.main.layout_submenu.view.*
+import kotlinx.android.synthetic.main.activity_root.*
+import kotlinx.android.synthetic.main.layout_bottombar.*
+import kotlinx.android.synthetic.main.layout_submenu.*
 import ru.skillbranch.skillarticles.R
-import ru.skillbranch.skillarticles.databinding.ActivityRootBinding
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.viewmodels.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
@@ -22,15 +21,9 @@ class RootActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ArticleViewModel
 
-    private val vb: ActivityRootBinding
-        get() = checkNotNull(_vb)
-
-    private var _vb: ActivityRootBinding? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _vb = ActivityRootBinding.inflate(LayoutInflater.from(this))
-        setContentView(vb.root)
+        setContentView(R.layout.activity_root)
         setupToolbar()
         setupSubmenu()
         setupBottombar()
@@ -47,8 +40,8 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun renderNotification(notify: Notify) {
-        val snackbar = Snackbar.make(vb.coordinatorContainer, notify.message, Snackbar.LENGTH_LONG)
-            .setAnchorView(vb.bottombar)
+        val snackbar = Snackbar.make(coordinator_container, notify.message, Snackbar.LENGTH_LONG)
+            .setAnchorView(bottombar)
 
         snackbar.apply {
             when (notify) {
@@ -71,53 +64,45 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun setupBottombar() {
-        with(vb.bottombar) {
-            btn_like.setOnClickListener { viewModel.handleLike() }
-            btn_bookmark.setOnClickListener { viewModel.handleBookmark() }
-            btn_share.setOnClickListener { viewModel.handleShare() }
-            btn_settings.setOnClickListener { viewModel.handleToggleMenu() }
-        }
+        btn_like.setOnClickListener { viewModel.handleLike() }
+        btn_bookmark.setOnClickListener { viewModel.handleBookmark() }
+        btn_share.setOnClickListener { viewModel.handleShare() }
+        btn_settings.setOnClickListener { viewModel.handleToggleMenu() }
     }
 
     private fun setupSubmenu() {
-        with(vb.submenu) {
-            btn_text_up.setOnClickListener { viewModel.handleUpText() }
-            btn_text_down.setOnClickListener { viewModel.handleDownText() }
-            switch_mode.setOnClickListener { viewModel.handleNightMode() }
-        }
+        btn_text_up.setOnClickListener { viewModel.handleUpText() }
+        btn_text_down.setOnClickListener { viewModel.handleDownText() }
+        switch_mode.setOnClickListener { viewModel.handleNightMode() }
     }
 
     private fun renderUi(data: ArticleState) {
-        with(vb.bottombar) {
-            btn_settings.isChecked = data.isShowMenu
-            btn_like.isChecked = data.isLike
-            btn_bookmark.isChecked = data.isBookmark
+        btn_settings.isChecked = data.isShowMenu
+        btn_like.isChecked = data.isLike
+        btn_bookmark.isChecked = data.isBookmark
+
+        if (data.isShowMenu) submenu.open() else submenu.close()
+        switch_mode.isChecked = data.isDarkMode
+        delegate.localNightMode = if (data.isDarkMode) {
+            AppCompatDelegate.MODE_NIGHT_YES
+        } else {
+            AppCompatDelegate.MODE_NIGHT_NO
         }
 
-        with(vb.submenu) {
-            if (data.isShowMenu) open() else close()
-            switch_mode.isChecked = data.isDarkMode
-            delegate.localNightMode = if (data.isDarkMode) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
-
-            if (data.isBigText) {
-                vb.tvTextContent.textSize = 18f
-                btn_text_up.isChecked = true
-                btn_text_down.isChecked = false
-            } else {
-                vb.tvTextContent.textSize = 14f
-                btn_text_up.isChecked = false
-                btn_text_down.isChecked = true
-            }
+        if (data.isBigText) {
+            tv_text_content.textSize = 18f
+            btn_text_up.isChecked = true
+            btn_text_down.isChecked = false
+        } else {
+            tv_text_content.textSize = 14f
+            btn_text_up.isChecked = false
+            btn_text_down.isChecked = true
         }
 
-        vb.tvTextContent.text =
+        tv_text_content.text =
             if (data.isLoadingContent) "loading" else data.content.first() as String
 
-        vb.toolbar.apply {
+        toolbar.apply {
             title = data.title ?: "loading"
             subtitle = data.category ?: "loading"
             if (data.categoryIcon != null) logo = getDrawable(data.categoryIcon as Int)
@@ -126,9 +111,9 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        setSupportActionBar(vb.toolbar)
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val logo = if (vb.toolbar.childCount > 2) vb.toolbar.getChildAt(2) as? ImageView else null
+        val logo = if (toolbar.childCount > 2) toolbar.getChildAt(2) as? ImageView else null
         logo?.apply {
             scaleType = ImageView.ScaleType.CENTER_CROP
             logo.layoutParams = (logo.layoutParams as Toolbar.LayoutParams).apply {
@@ -138,10 +123,5 @@ class RootActivity : AppCompatActivity() {
             }
         }
 
-    }
-
-    override fun onDestroy() {
-        _vb = null
-        super.onDestroy()
     }
 }

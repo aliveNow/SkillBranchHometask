@@ -21,7 +21,10 @@ class ArticleViewModel(private val articleId: String) :
                     title = title,
                     category = category,
                     categoryIcon = categoryIcon,
-                    date = date.format()
+                    date = date.format(),
+                    author = author,
+                    poster = poster,
+                    content = content
                 )
             }
         }
@@ -84,10 +87,10 @@ class ArticleViewModel(private val articleId: String) :
         }
         toggleLike()
         val msg = if (currentState.isLike) {
-            Notify.TextMessage("Article is liked")
+            Notify.TextMessage("Mark is liked")
         } else {
             Notify.ActionMessage(
-                "Don't like it anymore",
+                "Don`t like it anymore",
                 "No, still like it",
                 toggleLike
             )
@@ -95,7 +98,23 @@ class ArticleViewModel(private val articleId: String) :
         notify(msg)
     }
 
-    fun handleBookmark() {}
+    fun handleBookmark() {
+        val toggleBookmark = {
+            val info = currentState.toArticlePersonalInfo()
+            repository.updateArticlePersonalInfo(info.copy(isBookmark = !info.isBookmark))
+        }
+        toggleBookmark()
+        val msg = if (currentState.isBookmark) {
+            Notify.TextMessage("Add to bookmarks")
+        } else {
+            Notify.ActionMessage(
+                "Remove from bookmarks",
+                "No, still bookmark it",
+                toggleBookmark
+            )
+        }
+        notify(msg)
+    }
 
     fun handleShare() {
         notify(Notify.ErrorMessage("Share is not implemented", "OK", null))

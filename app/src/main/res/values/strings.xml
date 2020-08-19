@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Skill Articles</string>
     <string name="title_activity_root">RootActivity</string>
+    <string name="article_search_placeholder">Введите что-нибудь для поиска</string>
 </resources>

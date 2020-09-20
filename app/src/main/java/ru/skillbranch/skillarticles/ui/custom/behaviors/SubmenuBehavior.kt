@@ -1,12 +1,15 @@
 package ru.skillbranch.skillarticles.ui.custom.behaviors
 
+import android.content.Context
+import android.util.AttributeSet
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.marginRight
 import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
 
-class SubmenuBehavior : CoordinatorLayout.Behavior<ArticleSubmenu>() {
+class SubmenuBehavior(context: Context, attrs: AttributeSet) :
+    CoordinatorLayout.Behavior<ArticleSubmenu>(context, attrs) {
 
     override fun layoutDependsOn(
         parent: CoordinatorLayout,

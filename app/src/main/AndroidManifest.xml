@@ -7,8 +7,9 @@
     <application android:allowBackup="false">
         <activity
             android:name=".ui.RootActivity"
+            android:label="Skill articles"
             android:theme="@style/AppTheme"
-            android:label="@string/title_activity_root">
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

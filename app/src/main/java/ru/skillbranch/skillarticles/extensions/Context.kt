@@ -32,3 +32,4 @@ val Context.isNetworkAvailable: Boolean
             )
         } ?: false
     }
+
